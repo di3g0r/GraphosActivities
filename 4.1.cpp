@@ -4,6 +4,8 @@
 
 #include <list>
 #include <iostream>
+#include <stdlib.h> 
+#include <vector>
 
 using namespace std;
 /*
@@ -20,18 +22,30 @@ struct Graph{
 class Graph{
     private:
         int numVertices;
+        int numEdges;
+
         list<int> *adjLists;
+        vector<vector<int>> *adjMatrix;
+
         bool *visited;
     public:
-        Graph(int V){
+        Graph(int V, int E){
             numVertices = V;
+            numEdges = E;
+
             adjLists = new list<int> [V];
+            adjMatrix = new  vector<vector<int>> [V]; 
+            adjMatrix->resize(V,vector<int>(V, 0));
             visited = new bool[V];
+
         }
         ~Graph(){
             delete []adjLists;
             delete []visited;
         }
+
+        void LoadGraph(int, int);
+
         void addEdge(int, int);
         void printGraph();
 
@@ -55,6 +69,9 @@ void Graph::printGraph(){
 void Graph::addEdge(int s, int d){
     this->adjLists[s].push_back(d);
     this->adjLists[d].push_back(s);
+
+    this->adjMatrix[s][d] = 1;
+
 }
 
 void Graph::ResetVisited(){
@@ -64,7 +81,6 @@ void Graph::ResetVisited(){
 }
 
 void Graph::DFS(int vertex){
-    ResetVisited();
 
     this->visited[vertex] = true;
     list<int> adjVertex = this->adjLists[vertex];
@@ -74,6 +90,8 @@ void Graph::DFS(int vertex){
     for(auto i: adjVertex)
         if(!this->visited[i])
             DFS(i);
+
+    std::cout << "\n";
 }
 
 void Graph::BFS(int startVertex){
@@ -98,6 +116,23 @@ void Graph::BFS(int startVertex){
             }
         }
     }
+    std::cout << "\n";
+}
+
+void Graph::LoadGraph(int n, int m){
+
+    //Lenamos la adjList de forma random
+    int cont = 0;
+    int conexiones = rand() % m + 1;
+    int vertices = rand() % n + 1;
+    while(cont < m){
+        int conexion = rand() % m + 1;
+        int vertice = rand() % n + 1;
+        addEdge(vertice, conexion);
+        cont += 1;
+    }
+
+    //LLenamos la adjMatrix de forma random
 }
 
 int main(){
@@ -110,6 +145,10 @@ int main(){
     G.addEdge(0, 4);
 
     G.printGraph();
+
+    //G.DFS(0);
+
+    G.BFS(0);
 
     return 0;
 }
