@@ -37,7 +37,7 @@ class Graph{
             adjLists = new list<int> [V];
 
             adjMatrix = new vector<vector<int>> [V]; 
-            adjMatrix->resize(V,vector<int>(V, 0));
+            adjMatrix->resize(V, vector<int>(V, 0));
             
             visited = new bool[V];
 
@@ -138,16 +138,16 @@ void Graph::BFS(int startVertex){
 }
 
 void Graph::LoadGraph(int n, int m){
-    srand (time(NULL));
     //Graph(n, m);
     //Lenamos la adjList de forma random
     int cont = 0;
+
     while(cont < m){
-        int conexion = rand() % n + 1;
-        int vertice = rand() % n + 1;
+        int conexion = rand() % n ;
+        int vertice = rand() % n ;
         if(this->adjMatrix->at(vertice)[conexion] == 0 && conexion != vertice){
             addEdge(vertice, conexion);
-            cont += 1;
+            cont++;
         }
     }
 }
@@ -168,9 +168,9 @@ int main(){
     //G.DFS(0);
 
     //G.BFS(0);
-
-    Graph G(6, 5);
-    G.LoadGraph(6, 5);
+    srand (time(NULL));
+    Graph G(3, 3);
+    G.LoadGraph(3, 3);
     G.printGraph();
 
     return 0;
