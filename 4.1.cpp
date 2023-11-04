@@ -27,8 +27,6 @@ class Graph{
         int numVertices;
         int numEdges;
 
-        int *arr;
-
         list<int> *adjLists;
         vector<vector<int>> *adjMatrix;
 
@@ -38,7 +36,6 @@ class Graph{
 
             numVertices = V;
             numEdges = E;
-            arr[numVertices] = {-1};
 
             adjLists = new list<int> [V];
 
@@ -106,6 +103,7 @@ void Graph::ResetVisited(){
     }
 }
 
+
 void Graph::DFS(int vertex){
     this->visited[vertex] = true;
     list<int> adjVertex = this->adjLists[vertex];
@@ -118,7 +116,6 @@ void Graph::DFS(int vertex){
 }
 
 void Graph::MDFS(int vertex){
-    
     this->visited[vertex] = true;
 
     vector<int> adjVertex(numVertices);
@@ -129,21 +126,13 @@ void Graph::MDFS(int vertex){
     for(int i = 0; i < adjVertex.size();i++){
         if(adjVertex[i] == 1){
             if(this->visited[i] == false){
-                arr[i] = i;
+                MDFS(i);
             }
         }         
     }
-    for(int j = 1; j < numVertices; j++){
-        if(j == arr[j]){
-            MDFS(j);
-        }
-    }
-  
 }
 
-void Graph::BFS(int startVertex){
-    ResetVisited();
-    
+void Graph::BFS(int startVertex){ 
     visited[startVertex] = true;
     
     list<int> queue;
@@ -156,7 +145,7 @@ void Graph::BFS(int startVertex){
 
         queue.pop_front();
 
-        for(auto i:adjLists[currentVertex]){
+        for(auto i: adjLists[currentVertex]){
             if(!visited[i]){
                 visited[i] = true;
                 queue.push_back(i);
@@ -164,6 +153,39 @@ void Graph::BFS(int startVertex){
         }
     }
     std::cout << "\n";
+}
+
+void Graph::MBFS(int startVertex){
+    visited[startVertex] = true;
+    vector<int> adjVertex(numVertices);
+
+    list<int> queue;
+    queue.push_back(startVertex);
+
+    while(!queue.empty()){
+        int currentVertex = queue.front();
+    
+        adjVertex = this->adjMatrix->at(startVertex);
+
+        std::cout << currentVertex << " ";
+
+        queue.pop_front();
+
+        for(int i = 0; i < adjVertex.size();i++){
+            if(!visited[i] && adjVertex[i] == 1){
+                visited[i] = true;
+                queue.push_back(i);
+            }
+        }
+    }
+
+    for(int i = 0; i < numVertices; i++){
+        if(visited[i] == false){
+            MBFS(i);
+        }
+    }
+    std::cout << "\n";
+
 }
 
 void Graph::LoadGraph(int n, int m){
@@ -183,7 +205,7 @@ void Graph::LoadGraph(int n, int m){
 
 int main(){
     
-    Graph G(5, 3);
+    /*Graph G(5, 3);
 
     G.addEdge(0, 1);
     G.addEdge(0, 2);
@@ -191,28 +213,35 @@ int main(){
     G.addEdge(1, 2);
     G.addEdge(0, 4);
     
-    G.printGraph();
+    G.printGraph();*/
     
 
     //G.DFS(0);
 
     //G.BFS(0);
     srand (time(NULL));
-    /*
+    
     Graph G(6, 8);
     G.LoadGraph(6, 8);
-    G.printGraph();*/
+    G.printGraph();
 
     G.ResetVisited();
     
-    std::cout << "DFS para AdjList\n";
+    /*std::cout << "DFS para AdjList\n";
     G.DFS(0);
+    std::cout << "\n";*/
+
+    std::cout << "BFS para AdjList\n";
+    G.BFS(0);
     std::cout << "\n";
 
     G.ResetVisited();
 
-    std::cout << "DFS para AdjMatrix\n";
-    G.MDFS(0);
+    /*std::cout << "DFS para AdjMatrix\n";
+    G.MDFS(0);*/
+
+    std::cout << "BFS para AdjMatrix\n";
+    G.MBFS(0);
 
     return 0;
 }
