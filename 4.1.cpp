@@ -7,7 +7,6 @@
 #include <stdlib.h> 
 #include <vector>
 #include <time.h>
-#include <stack>
 #include <queue>
 
 using namespace std;
@@ -63,6 +62,8 @@ class Graph{
         void ResetVisited();
 };
 
+/*printGraph(), imprime el grafo en sus 2 representaciones como lista de
+adyacencia o como matriz de adyacencia. Complejidad O(n2)*/
 void Graph::printGraph(){
     //adjList
     std::cout << "Adjacency List\n"; 
@@ -88,6 +89,8 @@ void Graph::printGraph(){
     std::cout << "\n";
 }
 
+/*addEdge(int s, int d), funcion donde le agregamos una nueva arista al grafo
+indicamos el par de vertices que queremos conectar. Complejidad O(1)*/
 void Graph::addEdge(int s, int d){
     this->adjLists[s].push_back(d);
     this->adjLists[d].push_back(s);
@@ -97,13 +100,19 @@ void Graph::addEdge(int s, int d){
 
 }
 
+/*ResetVisited(), recorre todo el array de visited y pone todos sus valores en falso
+Complejidad O(n)*/
 void Graph::ResetVisited(){
     for(int i = 0; i < numVertices; i++){
         visited[i] = false;
     }
 }
 
-
+/*DFS(int vertex), ejecuta el recorrido del grafo por el metodo  Depth First Search
+en la lista de adyacencia, empieza en el vertice indicado
+el cual marca como visitado y se agregan a un stack sus adyacentes, luego toma
+el primer elemento del stack y repite los 2 pasos anteriores hasta terminar
+Complejidad O(V + E)*/
 void Graph::DFS(int vertex){
     this->visited[vertex] = true;
     list<int> adjVertex = this->adjLists[vertex];
@@ -113,8 +122,18 @@ void Graph::DFS(int vertex){
     for(auto i: adjVertex)
         if(!this->visited[i])
             DFS(i);
+
+    for(int i = 0; i < numVertices; i++){
+        if(visited[i] == false){
+            DFS(i);
+        }
+    }
 }
 
+/*MDFS(int vertex), ejecuta el recorrido del arbol Depth First Search
+en la matriz de adyacencia, empieza con el elemento dado, lo marca como visitado, y se pasa a 
+su primer elemento adyacente, y hace lo mismo, repite el proceso hasta visitar todos los elementos
+Complejidad O(V + E)*/
 void Graph::MDFS(int vertex){
     this->visited[vertex] = true;
 
@@ -130,8 +149,17 @@ void Graph::MDFS(int vertex){
             }
         }         
     }
+    for(int i = 0; i < numVertices; i++){
+        if(visited[i] == false){
+            MDFS(i);
+        }
+    }
 }
 
+/*BFS(int startVertex), empieza su busqueda en un vertice, crea una lista
+de los nodos adyacentes de dicho vertice que no han sido vsitados
+ y los agrega a una queue, toma el elemento mas alto de la queue y repite
+ el proceso O(V + E)*/
 void Graph::BFS(int startVertex){ 
     visited[startVertex] = true;
     
@@ -152,9 +180,19 @@ void Graph::BFS(int startVertex){
             }
         }
     }
+
+    for(int i = 0; i < numVertices; i++){
+        if(visited[i] == false){
+            BFS(i);
+        }
+    }
+
     std::cout << "\n";
 }
 
+/*MBFS(int startVertex), metodo de busqueda Breadth First Search, tiena la misma logica que
+BFS solo que utiliza las filas de la matriz para realizar la busqueda en vez de las listas
+Complejidad O(V + E)*/
 void Graph::MBFS(int startVertex){
     visited[startVertex] = true;
     vector<int> adjVertex(numVertices);
@@ -188,6 +226,9 @@ void Graph::MBFS(int startVertex){
 
 }
 
+/*LoadGraph(int n, int m), funcion que nos permite crear un Grafo de froma random
+indicando cuantas vertices y cuantas aristas se quiere que se tengan, Crea tanto la lista de 
+aycencia como la matriz. Complejidad O(m)*/
 void Graph::LoadGraph(int n, int m){
     //Graph(n, m);
     //Lenamos la adjList de forma random
@@ -205,31 +246,35 @@ void Graph::LoadGraph(int n, int m){
 
 int main(){
     
-    /*Graph G(5, 3);
-
-    G.addEdge(0, 1);
-    G.addEdge(0, 2);
-    G.addEdge(1, 3);
-    G.addEdge(1, 2);
-    G.addEdge(0, 4);
-    
-    G.printGraph();*/
-    
-
-    //G.DFS(0);
-
-    //G.BFS(0);
     srand (time(NULL));
-    
-    Graph G(6, 8);
-    G.LoadGraph(6, 8);
+
+    int ver, aristas;
+
+    std::cout << "Cuantos vertices quieres que tenga tu grafo?\n";
+    std::cin >> ver;
+
+    std::cout << "Cuantas aristas quieres que tenga tu grafo?\n";
+    std::cin >> aristas;
+
+    while(aristas > (ver * (ver - 1)) / 2){
+        std::cout << "Tu grafo no puede tener esa cantidad de aristas\n";
+        std::cout << "Cuantas aristas quieres que tenga tu grafo?\n";
+        std::cin >> aristas;
+    }
+
+    Graph G(ver, aristas);
+    G.LoadGraph(ver, aristas);
+
+    std::cout << "Este es tu grafo\n\n";
     G.printGraph();
 
     G.ResetVisited();
     
-    /*std::cout << "DFS para AdjList\n";
+    std::cout << "DFS para AdjList\n";
     G.DFS(0);
-    std::cout << "\n";*/
+    std::cout << "\n";
+
+    G.ResetVisited();
 
     std::cout << "BFS para AdjList\n";
     G.BFS(0);
@@ -237,8 +282,11 @@ int main(){
 
     G.ResetVisited();
 
-    /*std::cout << "DFS para AdjMatrix\n";
-    G.MDFS(0);*/
+    std::cout << "DFS para AdjMatrix\n";
+    G.MDFS(0);
+    std::cout << "\n";
+
+    G.ResetVisited();
 
     std::cout << "BFS para AdjMatrix\n";
     G.MBFS(0);
