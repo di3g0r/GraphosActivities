@@ -8,6 +8,7 @@
 #include <vector>
 #include <time.h>
 #include <queue>
+#include <stack>
 
 using namespace std;
 
@@ -49,7 +50,13 @@ class Graph{
         void MBFS(int);
 
         bool isConnected();
+        bool isAllVisited();
+
         void ResetVisited();
+
+        bool isTree();
+
+        void TopologicalSort() ;
 };
 
 void Graph::printGraph(){
@@ -103,6 +110,15 @@ bool Graph::isConnected(){
     return true;
 }
 
+bool Graph::isAllVisited(){
+    for(int i=0; i < numVertices; i++){
+        if(visited[i] == false){
+            return false;
+        }
+    }
+    return true;
+}
+
 void Graph::LoadGraph(int n){
     //Graph(n, m);
     //Lenamos la adjList de forma random
@@ -136,14 +152,86 @@ void Graph::LoadGraph(int n){
     std::cout << "\n";
 }
 
+bool Graph::isTree(){
+    for(int i=0; i < numVertices; i++){
+        int cont = 0;
+        for(int j=0; j < numVertices; j++){
+            if(this->adjMatrix->at(j)[i] == 1){
+                cont++;
+            }
+            if(cont > 1){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void Graph::TopologicalSort(){
+    ResetVisited();
+
+    vector<vector<int>> nuevaMatriz = *adjMatrix;
+
+    int i = 0;
+    int j = 0;
+
+    vector<int> adjVertex(numVertices);
+
+    bool x = isAllVisited();
+
+    while(x != true){
+        for(int i=0; i < numVertices; i++){
+            int cont = 0;
+            for(int j=0; j < numVertices; j++){
+                adjVertex = nuevaMatriz.at(j);
+                if(adjVertex[i] == 1){
+                    cont++;
+                }
+            }
+            if(visited[i] != true && cont != 0){
+                visited[i] = true;
+                std::cout << i << " ";
+                adjVertex = nuevaMatriz.at(i);
+                for(int k = 0; k < numVertices; k++){
+                    if(adjVertex[k] == 1){
+                        nuevaMatriz.at(i)[j] = 0;
+                    }
+                }
+                x = isAllVisited();
+            }
+        }
+        if(i == numVertices){
+            i = 0;
+            j = 0;
+        }
+    }
+}
+
+
+
 int main(){
     srand (time(NULL));
 
-    Graph G(6);
+    Graph G(4);
 
-    G.LoadGraph(6);
+    /*G.addEdge(0,1);
+    G.addEdge(0,2);
+    G.addEdge(2,3);
+    G.addEdge(1,2);*/
+
+    G.LoadGraph(4);
 
     G.printGraph();
+
+    if(G.isTree() == false){
+        std::cout << "el grafo no es un arbol\n";
+    }
+    else{
+        std::cout << "el grafo si es un arbol\n";
+    }
+
+    G.TopologicalSort();
+    
 
     return 0;
 }
