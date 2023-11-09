@@ -57,6 +57,10 @@ class Graph{
         bool isTree();
 
         void TopologicalSort() ;
+        void auxTopological(int, stack<int>&);
+
+        bool isBipartite();
+        int inDegree();
 };
 
 void Graph::printGraph(){
@@ -167,59 +171,84 @@ bool Graph::isTree(){
     return true;
 }
 
-void Graph::TopologicalSort(){
+void Graph::TopologicalSort() {
     ResetVisited();
+    stack<int> stack;
 
-    vector<vector<int>> nuevaMatriz = *adjMatrix;
-
-    int i = 0;
-    int j = 0;
-
-    vector<int> adjVertex(numVertices);
-
-    bool x = isAllVisited();
-
-    while(x != true){
-        for(int i=0; i < numVertices; i++){
-            int cont = 0;
-            for(int j=0; j < numVertices; j++){
-                adjVertex = nuevaMatriz.at(j);
-                if(adjVertex[i] == 1){
-                    cont++;
-                }
-            }
-            if(visited[i] != true && cont != 0){
-                visited[i] = true;
-                std::cout << i << " ";
-                adjVertex = nuevaMatriz.at(i);
-                for(int k = 0; k < numVertices; k++){
-                    if(adjVertex[k] == 1){
-                        nuevaMatriz.at(i)[j] = 0;
-                    }
-                }
-                x = isAllVisited();
-            }
+    for (int i = 0; i < numVertices; i++) {
+        if (visited[i] == false) {
+            auxTopological(i, stack);
         }
-        if(i == numVertices){
-            i = 0;
-            j = 0;
+    }
+
+    while (stack.empty() == false) {
+        cout << stack.top() << " ";
+        stack.pop();
+    }
+    cout << endl;
+}
+
+void Graph::auxTopological(int v, stack<int> &stack) {
+    visited[v] = true;
+
+    for (int i = 0; i < numVertices; i++) {
+        if (!visited[i] && (*adjMatrix)[v][i] == 1) {
+            auxTopological(i, stack);
+        }
+    }
+
+    stack.push(v);
+}
+
+int Graph::inDegree(){
+    for (int i = 0; i < numVertices; i++){
+        for(int j = 0; j < numVertices;j++){
+            if(adjMatrix->at(j)[i] == 1){
+
+            }
         }
     }
 }
 
+bool Graph::isBipartite(){
+    for(int i = 0;i < numVertices; i++){
 
+    }
+    visited[startVertex] = true;
+    vector<int> adjVertex(numVertices);
+
+    list<int> queue;
+    queue.push_back(startVertex);
+
+    while(!queue.empty()){
+        int currentVertex = queue.front();
+    
+        adjVertex = this->adjMatrix->at(startVertex);
+
+        std::cout << currentVertex << " ";
+
+        queue.pop_front();
+
+        for(int i = 0; i < adjVertex.size();i++){
+            if(!visited[i] && adjVertex[i] == 1){
+                visited[i] = true;
+                queue.push_back(i);
+            }
+        }
+    }
+}
 
 int main(){
     srand (time(NULL));
 
-    Graph G(4);
+    Graph G(6);
 
     /*G.addEdge(0,1);
     G.addEdge(0,2);
     G.addEdge(2,3);
     G.addEdge(1,2);*/
 
-    G.LoadGraph(4);
+    G.LoadGraph(6);
 
     G.printGraph();
 
@@ -231,7 +260,13 @@ int main(){
     }
 
     G.TopologicalSort();
-    
 
+    if(G.isBipartite(0) == false){
+        std::cout << "el grafo no es bipartita\n";
+    }
+    else{
+        std::cout << "el grafo si es bipartita\n";
+    }
+    
     return 0;
 }
