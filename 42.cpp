@@ -202,40 +202,53 @@ void Graph::auxTopological(int v, stack<int> &stack) {
 
 int Graph::inDegree(){
     for (int i = 0; i < numVertices; i++){
+        int cont = 0;
         for(int j = 0; j < numVertices;j++){
             if(adjMatrix->at(j)[i] == 1){
-
+                cont++;
             }
+        }
+        if(cont == 0){
+            for(int k = 0; k < numVertices; k++){
+                adjMatrix->at(i)[k] == 0;
+            }
+            return i;
         }
     }
 }
 
 bool Graph::isBipartite(){
-    for(int i = 0;i < numVertices; i++){
+    visited[inDegree()] = true;
 
-    }
-    visited[startVertex] = true;
     vector<int> adjVertex(numVertices);
+    vector<bool> color(numVertices);
+
+    color[inDegree()] = true;
 
     list<int> queue;
-    queue.push_back(startVertex);
+    queue.push_back(inDegree());
 
-    while(!queue.empty()){
+    while(!isAllVisited()){
+        queue.push_back(inDegree());
         int currentVertex = queue.front();
     
-        adjVertex = this->adjMatrix->at(startVertex);
+        adjVertex = this->adjMatrix->at(inDegree());
 
         std::cout << currentVertex << " ";
 
         queue.pop_front();
 
         for(int i = 0; i < adjVertex.size();i++){
-            if(!visited[i] && adjVertex[i] == 1){
+            if(!visited[i] && adjMatrix->at(currentVertex)[i]){
+                color[i] = !color[currentVertex];
                 visited[i] = true;
-                queue.push_back(i);
+            }
+            else if(color[currentVertex] == color[i]){
+                return false;
             }
         }
     }
+    return true;
 }
 
 int main(){
@@ -261,7 +274,7 @@ int main(){
 
     G.TopologicalSort();
 
-    if(G.isBipartite(0) == false){
+    if(G.isBipartite() == false){
         std::cout << "el grafo no es bipartita\n";
     }
     else{
