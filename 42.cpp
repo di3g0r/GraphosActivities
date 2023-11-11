@@ -60,9 +60,10 @@ class Graph{
         void auxTopological(int, stack<int>&);
 
         bool isBipartite();
-        int inDegree();
 };
 
+/*printGraph(), imprime el grafo en sus 2 representaciones como lista de
+adyacencia o como matriz de adyacencia. Complejidad O(n2)*/
 void Graph::printGraph(){
     //adjList
     std::cout << "Adjacency List\n"; 
@@ -105,6 +106,9 @@ void Graph::ResetVisited(){
     }
 }
 
+/*isConnected(), recorre todo el array de connected para checar si todos
+los nodos estan conectados, ya sea que un nodo se dirija a ellos o que ellos
+a otro nodo.Complejidad O(n)*/
 bool Graph::isConnected(){
     for(int i=0; i < numVertices; i++){
         if(connected[i] == false){
@@ -114,6 +118,8 @@ bool Graph::isConnected(){
     return true;
 }
 
+/*isAllVisited(), recorre todo el array de visited para checar si todos
+los nodos han sido visitados. Complejidad O(n)*/
 bool Graph::isAllVisited(){
     for(int i=0; i < numVertices; i++){
         if(visited[i] == false){
@@ -123,6 +129,10 @@ bool Graph::isAllVisited(){
     return true;
 }
 
+/*LoadGraph(int n), funcion que nos permite crear un Grafo Dirigido
+Aciclico (DAG) de froma random
+indicando cuantas vertices se quiere que se tenga, Crea tanto la lista de 
+aycencia como la matriz. Complejidad O(n2)*/
 void Graph::LoadGraph(int n){
     //Graph(n, m);
     //Lenamos la adjList de forma random
@@ -156,6 +166,10 @@ void Graph::LoadGraph(int n){
     std::cout << "\n";
 }
 
+/*isTree(), funcion para verificar si nuestro DAG es una rbol o no,
+recorre la matriz en cada indice, checando si dicho indice tiene mas de un padre
+, si un solo nodo tiene mas de un padre regresa falso, si todos los nodos tienen un
+solo padre regresa true, Complejidad O(n2)*/
 bool Graph::isTree(){
     for(int i=0; i < numVertices; i++){
         int cont = 0;
@@ -171,6 +185,9 @@ bool Graph::isTree(){
     return true;
 }
 
+/*TopologicalSort(), realiza un ordenamiento de modo que cada nodo aparezaca siempre
+antes de todos los nodos a los cuales apunta. Como si fueran pasos que se tienen que
+realizar y cada uno es dependiente de uno o mas antes que el. Complejidad(n2)*/
 void Graph::TopologicalSort() {
     ResetVisited();
     stack<int> stack;
@@ -188,6 +205,11 @@ void Graph::TopologicalSort() {
     cout << endl;
 }
 
+/*auxTopological(int v, stack<int> &stack), es la funcion auxiliar del topological
+sort, mientras TopologicalSort recorre cada uno de los indices para ver si ya fueron visitados.
+Si no es asi, itera sobre ese nodo buscando a todos aquellos elementos a los que apunta
+, si encuentra un elemento que no ha sido visitado se llama asi misma y al completar el ciclo agrega
+ a un elemento a un stack. Complejidad O(n)*/
 void Graph::auxTopological(int v, stack<int> &stack) {
     visited[v] = true;
 
@@ -199,55 +221,55 @@ void Graph::auxTopological(int v, stack<int> &stack) {
     stack.push(v);
 }
 
-int Graph::inDegree(){
-    for (int i = 0; i < numVertices; i++){
-        int cont = 0;
-        for(int j = 0; j < numVertices;j++){
-            if(adjMatrix->at(j)[i] == 1){
-                cont++;
+/*isBipartite(), esta funcion lo que hace es checar si un grafo es bipartita, lo hace
+atravesando el grafo por BFS y agregando a una priority queue el nodo y su prioridad
+la cual es en base a su numero de nodos. ComplejidadO(n3)*/
+bool Graph::isBipartite(){
+    vector<bool> color(numVertices);
+    vector<bool> isColored(numVertices, false);
+    vector<int> inDegree(numVertices, 0);
+
+    // Calculate in-degrees
+    for (int i = 0; i < numVertices; ++i) {
+        for (int j = 0; j < numVertices; ++j) {
+            if ((*adjMatrix)[i][j] == 1) {
+                inDegree[j]++;
             }
-        }
-        if(cont == 0){
-            for(int k = 0; k < numVertices; k++){
-                adjMatrix->at(i)[k] == 0;
-            }
-            return i;
         }
     }
-}
 
-bool Graph::isBipartite(){
-    vector<int> color(numVertices, -1);
+    priority_queue<pair<int, int>> pq; 
 
-    for (int startVertex = 0; startVertex < numVertices; ++startVertex) {
-        if (color[startVertex] == -1) {
-            color[startVertex] = 0;
+    for (int i = 0; i < numVertices; ++i) {
+        pq.push({-inDegree[i], i}); 
+    }
 
-            queue<int> q;
-            q.push(startVertex);
+    while (!pq.empty()) {
+        int currentVertex = pq.top().second;
+        pq.pop();
 
-            while (!q.empty()) {
-                int currentVertex = q.front();
-                q.pop();
+        if (!isColored[currentVertex]) {
+            color[currentVertex] = false;
+            isColored[currentVertex] = true;
 
-                for (int i = 0; i < numVertices; ++i) {
-                    if ((*adjMatrix)[currentVertex][i] == 1) {
-                        if (color[i] == -1) {
-                            color[i] = 1 - color[currentVertex];
-                            q.push(i);
-                        } else if (color[i] == color[currentVertex]) {
-                            return false; // The graph is not bipartite
-                        }
-                    }
+            for (int i = 0; i < numVertices; ++i) {
+                if ((*adjMatrix)[currentVertex][i] == 1) {
+                    if (!isColored[i]) {
+                        color[i] = !color[currentVertex];
+                        isColored[i] = true;
+                        pq.push({-inDegree[i], i});
+                    } else if (color[i] == color[currentVertex]) {
+                        return false;
                 }
             }
         }
     }
 
-    return true; // The graph is bipartite
+    return true;
+    }
 }
 
-int main(){
+int main() {
     srand (time(NULL));
 
     Graph G(6);
