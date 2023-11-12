@@ -21,6 +21,7 @@ class Graph{
 
         bool *visited;
         bool *connected;
+        int *inDegree;
     public:
         Graph(int V){
             numVertices = V;
@@ -32,6 +33,7 @@ class Graph{
 
             visited = new bool[V];
             connected = new bool[V];
+            inDegree = new int[V];
         }
         ~Graph(){
             delete []adjLists;
@@ -60,6 +62,7 @@ class Graph{
         void auxTopological(int, stack<int>&);
 
         bool isBipartite();
+        bool allInDegreesZero();
 };
 
 /*printGraph(), imprime el grafo en sus 2 representaciones como lista de
@@ -205,6 +208,15 @@ void Graph::TopologicalSort() {
     cout << endl;
 }
 
+bool Graph::allInDegreesZero(){
+    for(int i = 0; i < numVertices; i++){
+        if(inDegree[i] != -1){
+            return false;
+        }
+    }
+    return true;
+}
+
 /*auxTopological(int v, stack<int> &stack), es la funcion auxiliar del topological
 sort, mientras TopologicalSort recorre cada uno de los indices para ver si ya fueron visitados.
 Si no es asi, itera sobre ese nodo buscando a todos aquellos elementos a los que apunta
@@ -227,7 +239,6 @@ la cual es en base a su numero de nodos. ComplejidadO(n3)*/
 bool Graph::isBipartite(){
     vector<bool> color(numVertices);
     vector<bool> isColored(numVertices, false);
-    vector<int> inDegree(numVertices, 0);
 
     // Calculate in-degrees
     for (int i = 0; i < numVertices; ++i) {
@@ -238,35 +249,52 @@ bool Graph::isBipartite(){
         }
     }
 
-    priority_queue<pair<int, int>> pq; 
+    int currentVertex = 0;
 
-    for (int i = 0; i < numVertices; ++i) {
-        pq.push({-inDegree[i], i}); 
-    }
+    while (allInDegreesZero() == false) {
+        for(int i = 0; i < numVertices; i++){
+            if(inDegree[i] == 0){
+                currentVertex = i;
+            }
+        }
+        inDegree[currentVertex] = -1;
 
-    while (!pq.empty()) {
-        int currentVertex = pq.top().second;
-        pq.pop();
-
+        //Si el nodo no esta coloreado
         if (!isColored[currentVertex]) {
+            //lo hacemos falso
             color[currentVertex] = false;
             isColored[currentVertex] = true;
 
+            //coloreamos todos sus hijos
             for (int i = 0; i < numVertices; ++i) {
                 if ((*adjMatrix)[currentVertex][i] == 1) {
                     if (!isColored[i]) {
                         color[i] = !color[currentVertex];
                         isColored[i] = true;
-                        pq.push({-inDegree[i], i});
-                    } else if (color[i] == color[currentVertex]) {
-                        return false;
+                        inDegree[i] = inDegree[-1];
+                    
+                        //si hay un hijo ya coloreado checamos el color
+                    } else {
+                        if (color[i] == color[currentVertex]) {
+                            return false;
+                        }
+                    } 
                 }
             }
         }
+        //Si el nodo ya esta coloreado
+        else if(isColored[currentVertex]){
+            for (int j = 0; j < numVertices; ++j){
+                if ((*adjMatrix)[currentVertex][j] == 1){
+                    if(color[j] == color[currentVertex]){
+                        return false;
+                    }
+                }
+            }
+        }
+    allInDegreesZero();    
     }
-
     return true;
-    }
 }
 
 int main() {
