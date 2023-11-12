@@ -208,6 +208,8 @@ void Graph::TopologicalSort() {
     cout << endl;
 }
 
+/*allInDegreesZero(), checa que el in Degree de todos los nodos sea 0, si es
+asi devuelve true, si no false. Complejidad O(n)*/
 bool Graph::allInDegreesZero(){
     for(int i = 0; i < numVertices; i++){
         if(inDegree[i] != -1){
@@ -298,33 +300,46 @@ bool Graph::isBipartite(){
 }
 
 int main() {
+    int vertices = 0;
+    while(vertices < 1){
+        std::cout << "De cuantos vertices quieres que sea tu arbol? ";
+        std::cin >> vertices;
+    }
     srand (time(NULL));
 
-    Graph G(6);
+    Graph G(vertices);
 
     /*G.addEdge(0,1);
     G.addEdge(0,2);
     G.addEdge(2,3);
     G.addEdge(1,2);*/
 
-    G.LoadGraph(6);
+    G.LoadGraph(vertices);
 
+    std::cout << "Este es tu grafo\n\n";
     G.printGraph();
 
+    std::cout << "\n";
+
     if(G.isTree() == false){
-        std::cout << "el grafo no es un arbol\n";
+        std::cout << "El grafo no es un arbol\n";
     }
     else{
-        std::cout << "el grafo si es un arbol\n";
+        std::cout << "El grafo si es un arbol\n";
     }
 
+    std::cout << "\n";
+
+    std::cout << "Orden topologico de tu grafo\n\n";
     G.TopologicalSort();
 
+    std::cout << "\n";
+
     if(G.isBipartite() == false){
-        std::cout << "el grafo no es bipartita\n";
+        std::cout << "El grafo no es bipartita\n";
     }
     else{
-        std::cout << "el grafo si es bipartita\n";
+        std::cout << "El grafo si es bipartita\n";
     }
     
     return 0;
