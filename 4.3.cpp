@@ -14,16 +14,17 @@ class Graph
 private:
   int numVertices;
   int adjMatrix[1000][1000];
+  
+  bool *visited;
   int *inDegree;
   int *outDegree;
-  bool *visited;
 public:
   Graph(int V)
   {
     numVertices = V;
     visited = new bool[V];
-    inDegree[1000] = {0};
-    outDegree[1000] = {0};
+    inDegree = new int[1000]();  
+    outDegree = new int[1000](); 
   }
   ~Graph()
   {
@@ -96,9 +97,8 @@ void readFile(Graph& gr) {
 
     // Read and store each entry in the vector
     string entry;
-    vector<int> ipParts;
-    ipParts = splitStrings(entry);
     while (getline(InputFile, entry)) {
+        vector<int> ipParts = splitStrings(entry);
 
         gr.addEdge(ipParts[0],ipParts[1]);
         //Actualizamos los valores de inDegree y outDegrees
@@ -122,31 +122,28 @@ int Graph::top10Ips(){
     int top10values[10] = {0};
     int top10index[10] = {0};
 
-    int index = 0;
-
-    for(int i = 0; i < 1000; i++){
-        int j = 0;
-        bool istop = false;
-        while(j < 10 || istop == false){
-            if(outDegree[i] > top10values[j]){
-                if(j < 9){
-                    int cambio = 8;
-                    while(cambio != j){
-                        top10values[cambio+1] = top10values[cambio];
-                        top10index[cambio+1] = top10index[cambio];
-                        cambio--;
-                    }
+    for (int i = 0; i < 1000; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            if (outDegree[i] > top10values[j]) {
+                for (int k = 9; k > j; --k) {
+                    top10values[k] = top10values[k - 1];
+                    top10index[k] = top10index[k - 1];
                 }
                 top10values[j] = outDegree[i];
-                top10index[index] = i;
-                index++;
-                istop = true;
+                top10index[j] = i;
+                break;
             }
-            j++;
         }
     }
+
+    for (int i = 0; i < 10; ++i) {
+        std::cout << top10values[i] << " " << top10index[i] << std::endl;
+    }
+
+    return 0;
 }
 int main(){
   Graph grafo(1000);
   readFile(grafo);
+  grafo.top10Ips();
 }
