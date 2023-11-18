@@ -19,7 +19,7 @@ class HashTable
             int size = getPrime(V);
             this->capacity = size,
             table = new list<int>[capacity];
-            array = new int[capacity]{NULL};
+            array = new int[capacity]{-1};
         }
         ~HashTable(){
             delete []table;
@@ -67,13 +67,14 @@ int HashTable::hashFunction(int key){
 
 void HashTable::insertItem(int data){
     int i = 1;
-
+    //chaining
     int index = hashFunction(data);
 
     table[index].push_back(data);
 
+    //quadratic probing
     while(index < capacity){
-        if(array[index] == NULL){
+        if(array[index] == -1){
             array[index] = data;
         }
         else{
@@ -81,16 +82,18 @@ void HashTable::insertItem(int data){
             i++;
             if(index > capacity){
                 index = capacity;
-                while(array[index] != NULL){
-                    if(array[index] != NULL){
-                        index--;
-                    }
-                    else if(array[index] == NULL){
+                bool x = false;
+                while(x == false){
+                    if(array[index] == -1){
                         array[index] = data;
+                        x = true;
+                    }
+                    else if(array[index] != -1){
+                        index--;
                     }
                 }
             }
-            if(index < capacity){
+            if(index < capacity-1){
                 array[index] = data;
             }
         }

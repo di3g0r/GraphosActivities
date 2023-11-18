@@ -165,7 +165,11 @@ int main(){
   std::cout << "Top 10 nodos con más Out Degree\n";
   grafo.top10Ips();
 
+  std::cout << "Segun el conteo hecho en el grafo, el boot master esta localizado en el segmento 60\n";
+
   std::cout << "\n";
   std::cout << "Todas las Ips de dicho nodo\n";
   grafo.topIp();
+
+  
 }
