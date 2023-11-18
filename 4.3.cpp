@@ -1,5 +1,7 @@
 //Act 4.3 Actividad Integradora Grafos
+//Carlos Tellez
 //Diego Rodríguez Romero
+//Sergio Ramirez Anaya
 //18 de noviembre de 2023
 
 #include <vector>
@@ -14,6 +16,7 @@ class Graph
 private:
   int numVertices;
   int adjMatrix[1000][1000];
+  int topValue;
   
   bool *visited;
   int *inDegree;
@@ -25,6 +28,7 @@ public:
     visited = new bool[V];
     inDegree = new int[1000]();  
     outDegree = new int[1000](); 
+    topValue = 0;
   }
   ~Graph()
   {
@@ -32,12 +36,11 @@ public:
   }
   void addEdge(int, int);
   void printGraph();
-  void loadGraph();
 
-  void updInDegree(int);
   void updOutDegree(int);
 
-  int top10Ips();
+  void top10Ips();
+  void topIp();
 };
 
 
@@ -46,12 +49,6 @@ void Graph::addEdge(int s, int d)
 {
   if(adjMatrix[s][d] != 1)
     this->adjMatrix[s][d] = 1;
-}
-
-
-void Graph::loadGraph(){
-
-
 }
 
 vector<int> splitStrings(string &s) {
@@ -78,10 +75,6 @@ vector<int> splitStrings(string &s) {
     return intSplit;
 }
 
-void Graph::updInDegree(int vector){
-    this->inDegree[vector] += 1;
-}
-
 void Graph::updOutDegree(int vector){
     this->outDegree[vector] += 1;
 }
@@ -103,22 +96,19 @@ void readFile(Graph& gr) {
         gr.addEdge(ipParts[0],ipParts[1]);
         //Actualizamos los valores de inDegree y outDegrees
         gr.updOutDegree(ipParts[0]);
-        gr.updInDegree(ipParts[1]);
 
         gr.addEdge(ipParts[1],ipParts[2]);
-        gr.updOutDegree(ipParts[1]);
-        gr.updInDegree(ipParts[2]);
+        gr.updOutDegree(ipParts[1]); 
 
         gr.addEdge(ipParts[2],ipParts[3]);
         gr.updOutDegree(ipParts[2]);
-        gr.updInDegree(ipParts[3]);
     }
 
     // Closes the file currently associated
     InputFile.close();
 }
 
-int Graph::top10Ips(){
+void Graph::top10Ips(){
     int top10values[10] = {0};
     int top10index[10] = {0};
 
@@ -136,14 +126,46 @@ int Graph::top10Ips(){
         }
     }
 
+    std::cout << "Nodo - OutDegree\n";
     for (int i = 0; i < 10; ++i) {
-        std::cout << top10values[i] << " " << top10index[i] << std::endl;
+        std::cout << top10index[i] << " " << top10values[i] << "\n";
     }
 
-    return 0;
+    this->topValue = top10index[0];
 }
+
+void Graph::topIp(){
+    //system("clear");
+
+    ofstream outputFile("TopIp.txt");
+    int top = this->topValue;
+
+    ifstream InputFile("bitacora.txt");
+    if(!InputFile){
+        cerr << "Error opening the input file." << endl;
+    }
+
+    string entry;
+    while (getline(InputFile, entry)){
+        vector<int> ipParts = splitStrings(entry);
+
+        if(ipParts[0] == top || ipParts[1] == top || ipParts[2] == top){
+            outputFile << entry << "\n";
+            std::cout << entry << "\n";
+        }
+    }
+    InputFile.close();
+    outputFile.close();
+}
+
+
 int main(){
   Graph grafo(1000);
   readFile(grafo);
+  std::cout << "Top 10 nodos con más Out Degree\n";
   grafo.top10Ips();
+
+  std::cout << "\n";
+  std::cout << "Todas las Ips de dicho nodo\n";
+  grafo.topIp();
 }
