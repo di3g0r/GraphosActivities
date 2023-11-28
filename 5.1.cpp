@@ -13,12 +13,14 @@ class HashTable
     private:
         int capacity;
         int collisions;
+        int collisionsQ;
         list<int> *table;
         int *array;
     public:
         HashTable(int V){
             int size = getPrime(V);
             this->collisions = 0;
+            this->collisionsQ = 0;
             this->capacity = size;
             table = new list<int>[capacity];
             array = new int[capacity]{0};
@@ -111,6 +113,7 @@ ocupado suma el cuadrado de 3, y así sucesivamente hasta encontrar
 un lugar donde guardar dicho valor
 Complejidad O(n)*/
 void HashTable::insertItemArray(int data){
+    bool isCollision = false;
     int i = 1;
 
     int index = hashFunction(data);
@@ -120,6 +123,7 @@ void HashTable::insertItemArray(int data){
     }
 
     else{
+        isCollision = true;
         while (index < capacity){
             index = (index + i * i) % capacity;
             i++;
@@ -132,6 +136,10 @@ void HashTable::insertItemArray(int data){
         if (index >= capacity) {
             std::cout << "El elemento " << data << " se sale de la tabla\n";
         }
+    }
+
+    if(isCollision == true){
+        collisionsQ++;
     }
 }
 
@@ -165,9 +173,6 @@ void HashTable::deleteItem(int key){
     if (i != table[index].end()) {
         table[index].erase(i);
     }
-
-    // Libera solo la memoria de array si no es nulo
-    
 }
 
 
@@ -190,7 +195,9 @@ void HashTable::displayHash(){
 
     std::cout << "\n";
 
-    std::cout << "Hubo un total de " << collisions << " colisiones en la Hash Table\n";
+    std::cout << "Hubo un total de " << collisions << " colisiones en la Hash Table (Chaining)\n";
+
+    std::cout << "Hubo un total de " << collisionsQ << " colisiones en la Hash Table (Quadratic Probing)\n";
 
     std::cout << "\n";
 }
