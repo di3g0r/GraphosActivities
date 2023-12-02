@@ -17,17 +17,16 @@ class HashTable
 {
     private:
         int capacity;
-        int collisions;
-        int rango = contarPuertos();
+        int rango;
         list<string> *table;
         vector<int> portEntries;
     public:
         HashTable(int V){
+            int rango = contarPuertos();
             int size = getPrime(V);
-            this->collisions = 0;
             this->capacity = size;
             table = new list<string>[capacity];
-            portEntries[rango];
+            portEntries = vector<int>(3000);
         }
         ~HashTable(){
             delete []table;
@@ -42,24 +41,27 @@ class HashTable
         int hashFunction(int);
         void displayHash();
 
+        void top5(vector<int>);
+        vector<int> getPortEntries();
+
+        vector<string> abrirArchivo();
+        int contarPuertos();
+
+        int minimo();
 };
 
 /*SplitStrings, regresa un vector de enteros con todos los puertos*/
 int splitStrings(string &s) {
-    string mes, dia, hora, direccionIP;
-    char ch1, ch2, ch3, ch4;
-    int ipPart1, ipPart2, ipPart3, ipPart4, puerto;
+    string token;
+    istringstream tokenStream(s);
 
-    stringstream SS(s);
-    SS.clear();
-    SS >> mes >> dia >> hora >> direccionIP;
+    while (getline(tokenStream, token, ':')) {
+    }
+    istringstream portStream(token);
 
-    SS.clear();
-    SS.str(direccionIP);
-
-    SS >> ipPart1 >> ch1 >> ipPart2 >> ch2 >> ipPart3 >> ch3 >> ipPart4  >> ch4 >> puerto;
-
-    return puerto;
+    int port;
+    portStream >> port;
+    return port;
 }
 
 
@@ -98,11 +100,12 @@ int HashTable::getPrime(int n){
   donde debe de ser guardado dicho valor. En este caso utilice la función
  de Universal Hashing. Complejidad O(1)*/
 int HashTable::hashFunction(int key){
-    float knuth = (sqrt(5) - 1) / 2 ;
-    float x = capacity * (fmod(key*knuth,1));
-    x = floor(x);
-    int k = static_cast<int>(x);
-    return k;
+    int sum = 0;
+    while (key != 0) {
+        sum += key % 10;
+        key /= 10;
+    }
+    return sum % capacity;
     //return (key % (capacity));
 }
 
@@ -118,14 +121,12 @@ void HashTable::insertItem(string line){
 
     int index = hashFunction(data);
 
-    portEntries[data-rango] = 0;
-
     if(table[index].empty() != true){
-        portEntries[data-rango]++;
+        portEntries[data-4001]++;
     }
-    else{
-        portEntries[data-rango] = 0;
-    }
+    /*else{
+        portEntries[data-3000] = 0;
+    }*/
 
     table[index].push_back(line);
 
@@ -146,12 +147,14 @@ void HashTable::displayHash(){
 
     std::cout << "\n";
 
-    std::cout << "Hubo un total de " << collisions << " colisiones en la Hash Table (Chaining)\n";
-
     std::cout << "\n";
 }
 
-void readFile(HashTable ht) {
+vector<int> HashTable::getPortEntries(){
+        return portEntries;
+}
+
+void readFile(HashTable &ht) {
 
     ifstream InputFile("bitacora.txt");
     if(!InputFile){
@@ -169,12 +172,11 @@ void readFile(HashTable ht) {
     InputFile.close();
 }
 
-vector<string> abrirArchivo(){
+vector<string> HashTable::abrirArchivo(){
     vector<string> lineas;
     ifstream InputFile("bitacora.txt");
     if(!InputFile){
         cerr << "Error opening the input file." << endl;
-        return;
     }
 
     string entry;
@@ -189,7 +191,7 @@ vector<string> abrirArchivo(){
 }
 
 
-int contarPuertos(){
+int HashTable::contarPuertos(){
     vector<string> lineas = abrirArchivo();
     priority_queue<int> ports;
 
@@ -201,7 +203,6 @@ int contarPuertos(){
     int max = ports.top();
 
     while(ports.size() != 1) {
-        cout << "Port: " << ports.top() << endl;
         ports.pop();
     }
 
@@ -212,17 +213,48 @@ int contarPuertos(){
     return rango;
 }
 
-void top5(vector<int> puertos){
-    int tops[5];
-    for(int i = 0; i < 5; i++){
-        tops[i] = *max_element(puertos.begin(),puertos.end());
-        puertos.erase(tops[i]);
+int HashTable::minimo(){
+    vector<string> lineas = abrirArchivo();
+    priority_queue<int> ports;
+
+    while(ports.size() != 1) {
+        ports.pop();
     }
-    
-    
+
+    int min = ports.top();
+
+    return min;
+}
+
+void HashTable::top5(vector<int> puertos){
+    cout << "Top 5 puertos con sus accesos:\n";
+
+    vector<int> indices(portEntries.size());
+    iota(indices.begin(), indices.end(), rango);
+
+    for (int i = 0; i < min(5, static_cast<int>(indices.size())); ++i) {
+        int maxIndex = i;
+        for (int j = i + 1; j < indices.size(); ++j) {
+            if (portEntries[indices[j] - rango] > portEntries[indices[maxIndex] - rango]) {
+                maxIndex = j;
+            }
+        }
+
+        swap(indices[i], indices[maxIndex]);
+
+        cout << "Puerto: " << indices[i] + 4001 << ", Accesos: " << portEntries[indices[i] - rango] << "\n";
+    }
 }
 
 int main(){
+
+    HashTable ht(3000);
+
+    readFile(ht);
+
+    vector<int> puertos = ht.getPortEntries();
+    
+    ht.top5(puertos);
 
     return 0;
 }
